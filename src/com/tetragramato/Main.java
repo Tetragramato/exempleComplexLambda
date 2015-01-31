@@ -2,6 +2,7 @@ package com.tetragramato;
 
 import com.tetragramato.model.complexe.Operation;
 import com.tetragramato.model.complexe.Quittance;
+import com.tetragramato.model.flat.Commission;
 import com.tetragramato.model.flat.Prime;
 import com.tetragramato.model.type.TypeOperation;
 import com.tetragramato.model.type.TypeQuittance;
@@ -64,25 +65,25 @@ public class Main {
         quittancesFiltered.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().getTypeQuittance().equals(TypeQuittance.COMMISSION))
-                .map(new Function<Map.Entry<Quittance, List<Operation>>, Prime>() {
+                .map(new Function<Map.Entry<Quittance, List<Operation>>, Commission>() {
                     @Override
-                    public Prime apply(Map.Entry<Quittance, List<Operation>> quittanceListEntry) {
-                        Prime prime = new Prime();
-                        prime.setIdImputation(quittanceListEntry.getKey().getIdQuittance());
-                        prime.setTotalDue(quittanceListEntry.getValue()
+                    public Commission apply(Map.Entry<Quittance, List<Operation>> quittanceListEntry) {
+                        Commission commission = new Commission();
+                        commission.setIdImputation(quittanceListEntry.getKey().getIdQuittance());
+                        commission.setTotalDue(quittanceListEntry.getValue()
                                 .stream()
                                 .filter(op -> op.getTypeOperation().equals(TypeOperation.CREDIT))
                                 .map(Operation::getMontant)
                                 .reduce(BigDecimal.ZERO, BigDecimal::add));
-                        prime.setTotalAPercevoir(quittanceListEntry.getValue()
+                        commission.setTotalAPercevoir(quittanceListEntry.getValue()
                                 .stream()
                                 .filter(op -> op.getTypeOperation().equals(TypeOperation.DEBIT))
                                 .map(Operation::getMontant)
                                 .reduce(BigDecimal.ZERO, BigDecimal::add));
-                        prime.setLibelle(quittanceListEntry.getKey().getLibelle());
+                        commission.setLibelle(quittanceListEntry.getKey().getLibelle());
                         //Au final, on a bien une liste de Commission "à plat" d'après la structure complexe de quittance + opérations
-                        System.out.println("\nCommission ID : [" + prime.getIdImputation() + "], total due : [" + prime.getTotalDue() + "], total à percevoir : [" + prime.getTotalAPercevoir() + "], libellé : [" + prime.getLibelle() + "]\n");
-                        return prime;
+                        System.out.println("\nCommission ID : [" + commission.getIdImputation() + "], total due : [" + commission.getTotalDue() + "], total à percevoir : [" + commission.getTotalAPercevoir() + "], libellé : [" + commission.getLibelle() + "]\n");
+                        return commission;
 
                     }
                 }).collect(Collectors.toList());
